@@ -7,7 +7,8 @@ try:  # local dev only; on Vercel env vars come from the project settings
 except ImportError:
     pass
 
-DATABASE_URL = os.environ.get("DATABASE_URL", "")
+# Vercel's Neon integration sets DATABASE_URL and/or POSTGRES_URL.
+DATABASE_URL = os.environ.get("DATABASE_URL") or os.environ.get("POSTGRES_URL") or ""
 JWT_SECRET = os.environ.get("JWT_SECRET", "dev-secret-change-me")
 JWT_TTL_HOURS = int(os.environ.get("JWT_TTL_HOURS", "12"))
 
