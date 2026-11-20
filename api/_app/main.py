@@ -6,7 +6,7 @@ import psycopg
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
-from .config import DATABASE_URL, LLM_API_KEY
+from .config import DATABASE_URL, LLM_API_KEY, LLM_BASE_URL, LLM_MODEL_FAST, LLM_MODEL_MAIN, STT_MODEL
 from .db import ensure_schema
 from .routes import admin_routes, auth_routes, candidate_routes, interview_routes
 
@@ -39,7 +39,22 @@ def health():
             status["database"] = f"error: {type(e).__name__}: {str(e).splitlines()[0][:200]}"
     else:
         status["database"] = "DATABASE_URL not set"
-    status["ok"] = status["database"] == "ok" and status["llm_key_set"]
+
+    # Verify the LLM key with the provider's free model-list call (no tokens used).
+    # Shows only the first 4 chars and the length of the key.
+    status["llm_base_url"] = LLM_BASE_URL
+    status["llm_key_hint"] = f"{LLM_API_KEY[:4]}… ({len(LLM_API_KEY)} chars)" if LLM_API_KEY else None
+    if LLM_API_KEY:
+        try:
+            from .llm import client
+            available = {m.id for m in client().models.list()}
+            missing = [m for m in (LLM_MODEL_MAIN, LLM_MODEL_FAST, STT_MODEL) if m not in available]
+            status["llm"] = "ok" if not missing else f"key ok, models not available: {', '.join(missing)}"
+        except Exception as e:
+            status["llm"] = f"error: {str(e)[:200]}"
+    else:
+        status["llm"] = "LLM_API_KEY not set"
+    status["ok"] = status["database"] == "ok" and status["llm"] == "ok"
     return status
 
 
