@@ -58,7 +58,8 @@ Check that this is acceptable under the DPDP Act / GDPR before using real candid
 3. **Neon:** in the Vercel project, open Storage → Create Database → Neon (Postgres). This adds `DATABASE_URL` to the project.
 
 ### 2. Create the tables
-Paste `db/schema.sql` into the Neon SQL editor, or run:
+The API creates the tables automatically on its first database connection.
+To create them yourself instead, paste `api/_app/schema.sql` into the Neon SQL editor, or run:
 ```bash
 python -m venv .venv && .venv/Scripts/activate   # macOS/Linux: source .venv/bin/activate
 pip install -r requirements-dev.txt
@@ -89,7 +90,7 @@ api/_app/routes/          auth, users/JDs/audit, candidates, interviews
 api/_app/llm.py           OpenAI-SDK client (Groq by default): chat JSON + Whisper
 api/_app/prompts.py       analysis / questions / per-answer / report prompts + redaction
 api/_app/rubric.py        skill areas, default weights, weighted score
-db/schema.sql             all 12 tables from the proposal (pgvector columns ready for Phase 3)
+api/_app/schema.sql       all 12 tables (applied automatically if missing), from the proposal (pgvector columns ready for Phase 3)
 frontend/src/pages/       Candidates, CandidateNew, JobDescriptions, Users, AuditLog,
                           InterviewDetail (brief, questions, report, decision), InterviewRun
 ```

@@ -4,6 +4,8 @@ connection to Neon's pooled endpoint (PgBouncer) and closes it at the end.
 Autocommit is on: each statement is durable immediately, so nothing depends on the request
 cleanup running after the response (serverless runtimes may freeze before that). Multi-statement
 work that must be atomic uses `with conn.transaction():`."""
+import logging
+import pathlib
 from contextlib import contextmanager
 from typing import Any, Iterator
 
@@ -13,7 +15,23 @@ from psycopg.types.json import Jsonb
 
 from .config import DATABASE_URL
 
-__all__ = ["get_conn", "Jsonb", "fetch_all", "fetch_one", "execute"]
+__all__ = ["get_conn", "Jsonb", "fetch_all", "fetch_one", "execute", "ensure_schema"]
+
+SCHEMA_FILE = pathlib.Path(__file__).with_name("schema.sql")
+_schema_ready = False  # checked once per warm serverless instance
+
+
+def ensure_schema(conn: psycopg.Connection) -> None:
+    """Create the tables on first use if they don't exist. schema.sql is idempotent."""
+    global _schema_ready
+    if _schema_ready:
+        return
+    row = conn.execute("SELECT to_regclass('public.users') IS NOT NULL AS ready").fetchone()
+    ready = row["ready"] if isinstance(row, dict) else row[0]
+    if not ready:
+        logging.getLogger("l1").warning("Tables missing; applying schema.sql")
+        conn.execute(SCHEMA_FILE.read_text(encoding="utf-8"))
+    _schema_ready = True
 
 
 @contextmanager
@@ -23,6 +41,7 @@ def _connect() -> Iterator[psycopg.Connection]:
     # prepare_threshold=None: prepared statements don't survive PgBouncer transaction pooling
     conn = psycopg.connect(DATABASE_URL, row_factory=dict_row, prepare_threshold=None, autocommit=True)
     try:
+        ensure_schema(conn)
         yield conn
     finally:
         conn.close()
