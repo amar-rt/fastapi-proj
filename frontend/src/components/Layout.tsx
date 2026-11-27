@@ -14,12 +14,12 @@ export default function Layout() {
     <div className="min-h-screen">
       <header className="sticky top-0 z-10 bg-white/90 backdrop-blur border-b border-slate-200/80">
         <div className="mx-auto max-w-7xl px-4 h-16 flex items-center gap-6">
-          <div className="flex items-center gap-2.5">
-            <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 text-xs font-bold text-white shadow-sm">
-              L1
+          <NavLink to="/" className="flex items-center gap-2.5 shrink-0">
+            <img src="/logo.svg" alt="" className="h-8 w-8" />
+            <span className="hidden sm:inline font-bold text-navy">
+              L1 <span className="text-accent">Interview</span>
             </span>
-            <span className="font-semibold text-slate-900 hidden sm:inline">Interview</span>
-          </div>
+          </NavLink>
           <nav className="flex gap-1 flex-wrap">
             <NavLink to="/" end className={link}>Candidates</NavLink>
             {isSuper && <NavLink to="/candidates/new" className={link}>Add candidate</NavLink>}

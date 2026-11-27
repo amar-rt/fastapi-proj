@@ -142,7 +142,8 @@ export default function InterviewDetail() {
             {busy === "eval" ? <Spinner label="Scoring…" /> : evaluation ? "Re-run evaluation" : "Generate report"}
           </button>
         }>
-          {evaluation ? <Report ev={evaluation} threshold={Number(jd.pass_threshold)} /> : <p className="text-sm text-slate-500">No report yet.</p>}
+          {evaluation ? <Report ev={evaluation} threshold={Number(jd.pass_threshold)} cvMatch={analysis?.match_percent ?? null}
+            interviewWeight={data.scoring?.interview_weight ?? 0.8} /> : <p className="text-sm text-slate-500">No report yet.</p>}
         </Section>
       )}
 
@@ -244,14 +245,22 @@ function AddQuestion({ interviewId, section, onDone, onError }: { interviewId: s
       .then(() => { setOpen(false); onDone(); }).catch((e) => onError(e.message))} />;
 }
 
-function Report({ ev, threshold }: { ev: any; threshold: number }) {
+function Report({ ev, threshold, cvMatch, interviewWeight }: {
+  ev: any; threshold: number; cvMatch: number | null; interviewWeight: number;
+}) {
+  const iw = Math.round(interviewWeight * 100);
   const scored = (ev.skill_scores ?? []).filter((s: any) => s.score != null);
   return (
     <div className="space-y-5">
+      <div className="rounded-lg bg-indigo-50 px-4 py-2.5 text-sm text-indigo-900">
+        The recommendation is based on the <b>interview score only</b>, compared with the pass threshold.
+        CV match is shown for reference and does not affect selection.
+      </div>
       <div className="grid sm:grid-cols-4 gap-4">
-        <Stat label="Overall weighted score" value={ev.overall_score != null ? `${Number(ev.overall_score).toFixed(2)} / 5` : "—"}
-          sub={`Pass threshold ${threshold.toFixed(1)}`} />
-        <Stat label="Updated JD match" value={ev.match_percent != null ? `${ev.match_percent}%` : "—"} sub="CV + interview" />
+        <Stat label="Interview score" value={ev.overall_score != null ? `${Number(ev.overall_score).toFixed(2)} / 5` : "—"}
+          sub={`Pass threshold ${threshold.toFixed(1)} · decides selection`} />
+        <Stat label="Overall JD fit" value={ev.match_percent != null ? `${ev.match_percent}%` : "—"}
+          sub={`${iw}% interview + ${100 - iw}% CV${cvMatch != null ? ` (CV match ${cvMatch}%)` : ""}`} />
         <Stat label="AI recommendation" value={<Badge value={ev.ai_recommendation} />} sub={`Confidence ${ev.confidence ?? "—"}%`} />
         <div className="text-sm text-slate-700">{ev.reason}</div>
       </div>

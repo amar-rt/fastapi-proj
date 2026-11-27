@@ -19,5 +19,11 @@ LLM_MODEL_MAIN = os.environ.get("LLM_MODEL_MAIN", "openai/gpt-oss-120b")
 LLM_MODEL_FAST = os.environ.get("LLM_MODEL_FAST", "openai/gpt-oss-20b")
 STT_MODEL = os.environ.get("STT_MODEL", "whisper-large-v3-turbo")
 
+# Selection is decided by the interview score alone. CV match only feeds the displayed
+# "overall fit" figure, at this share (default 80% interview / 20% CV).
+INTERVIEW_WEIGHT = float(os.environ.get("INTERVIEW_WEIGHT", "0.8"))
+# Scores within this distance below the pass threshold are recommended "hold".
+HOLD_BAND = float(os.environ.get("HOLD_BAND", "0.5"))
+
 # Vercel rejects request bodies over 4.5 MB.
 MAX_UPLOAD_BYTES = 4 * 1024 * 1024

@@ -5,9 +5,9 @@ from pydantic import BaseModel, Field
 
 from .. import llm, prompts
 from ..auth import client_ip, current_user, load_interview_for
-from ..config import MAX_UPLOAD_BYTES
+from ..config import HOLD_BAND, INTERVIEW_WEIGHT, MAX_UPLOAD_BYTES
 from ..db import Jsonb, audit, fetch_all, fetch_one, get_conn
-from ..rubric import DEFAULT_WEIGHTS, SECTION_SPLIT, weighted_score
+from ..rubric import DEFAULT_WEIGHTS, SECTION_SPLIT, overall_fit, recommend, weighted_score
 
 router = APIRouter(prefix="/api/interviews", tags=["interviews"])
 
@@ -71,6 +71,7 @@ def get_interview(interview_id: str, user=Depends(current_user), conn=Depends(ge
         "evaluation": evaluation,
         "decisions": decisions,
         "section_split": SECTION_SPLIT,
+        "scoring": {"interview_weight": INTERVIEW_WEIGHT, "hold_band": HOLD_BAND},
     }
 
 
@@ -290,7 +291,7 @@ def _evaluate(conn, iv: dict) -> dict:
     )
     if not any(r["transcript"] for r in qa):
         raise HTTPException(400, "No answers recorded; nothing to evaluate")
-    out = _llm_call(llm.chat_json, prompts.EVAL_SYSTEM, prompts.eval_user(jd, weights, analysis, qa), max_tokens=6000)
+    out = _llm_call(llm.chat_json, prompts.EVAL_SYSTEM, prompts.eval_user(jd, weights, qa), max_tokens=6000)
 
     skill_scores = []
     for s in out.get("skill_scores") or []:
@@ -301,8 +302,13 @@ def _evaluate(conn, iv: dict) -> dict:
             "comment": s.get("comment"),
             "evidence": s.get("evidence"),
         })
+    # Selection is driven by the interview alone: weighted skill score vs the JD pass threshold.
     overall = weighted_score(skill_scores, weights)
-    rec = out.get("recommendation") if out.get("recommendation") in ("next_round", "hold", "reject") else "hold"
+    coverage = sum(1 for r in qa if r["transcript"]) / len(qa)
+    rec, confidence, verdict = recommend(overall, float(jd["pass_threshold"]), coverage, HOLD_BAND)
+    reason = f"{verdict} {out.get('summary') or ''}".strip()
+    # Displayed fit only (mostly interview, a little CV); it does not affect the recommendation.
+    fit = overall_fit(overall, analysis["match_percent"] if analysis else None, INTERVIEW_WEIGHT)
     conn.execute(
         """INSERT INTO evaluations (interview_id, skill_scores, overall_score, match_percent, ai_recommendation,
              confidence, reason, strengths, gaps, l2_focus)
@@ -311,8 +317,8 @@ def _evaluate(conn, iv: dict) -> dict:
              overall_score=EXCLUDED.overall_score, match_percent=EXCLUDED.match_percent,
              ai_recommendation=EXCLUDED.ai_recommendation, confidence=EXCLUDED.confidence, reason=EXCLUDED.reason,
              strengths=EXCLUDED.strengths, gaps=EXCLUDED.gaps, l2_focus=EXCLUDED.l2_focus, created_at=now()""",
-        (iv["id"], Jsonb(skill_scores), overall, out.get("match_percent"), rec, out.get("confidence"),
-         out.get("reason"), Jsonb(out.get("strengths") or []), Jsonb(out.get("gaps") or []),
+        (iv["id"], Jsonb(skill_scores), overall, fit, rec, confidence,
+         reason, Jsonb(out.get("strengths") or []), Jsonb(out.get("gaps") or []),
          Jsonb(out.get("l2_focus") or [])),
     )
     return {"overall_score": overall, "ai_recommendation": rec}

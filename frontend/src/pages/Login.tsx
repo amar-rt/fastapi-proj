@@ -38,7 +38,7 @@ export default function Login() {
     <div className="min-h-screen grid place-items-center bg-gradient-to-br from-indigo-950 via-indigo-900 to-violet-900 px-4">
       <form onSubmit={submit} className="card w-full max-w-sm space-y-4 p-7 shadow-2xl shadow-indigo-950/40">
         <div>
-          <span className="mb-3 grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-sm font-bold text-white">L1</span>
+          <img src="/logo.svg" alt="L1 Interview" className="mb-4 h-12 w-12 shadow-lg shadow-indigo-500/30 rounded-[14px]" />
           <h1 className="text-xl font-semibold text-slate-900">AI-Assisted L1 Interview</h1>
           <p className="text-sm text-slate-500">
             {needsSetup ? "First run: create the Super User account." : "Sign in to continue."}

@@ -104,21 +104,21 @@ def answer_user(question: dict, transcript: str) -> str:
 
 EVAL_SYSTEM = f"""You write the L1 interview report. Score each requested skill area 1-5 using the scale
 {json.dumps(SCALE)}, with a short comment and a verbatim evidence quote from the transcript.
+Score ONLY what the candidate demonstrated in the interview answers. Do not give credit for skills,
+titles or years that are claimed elsewhere but were not shown in the answers.
 If a skill area was not covered in the interview, return "score": null and say "Not assessed".
 {FAIRNESS}
 Return JSON only:
 {{
   "skill_scores": [{{"skill": "<area>", "score": <1-5 or null>, "comment": "<1-2 sentences>", "evidence": "<quote>"}}],
-  "match_percent": <int 0-100, updated JD fit using CV plus interview>,
-  "recommendation": "next_round|hold|reject",
-  "confidence": <int 0-100>,
-  "reason": "<2-3 sentence justification>",
+  "summary": "<2-3 sentences on how the candidate performed in the interview>",
   "strengths": ["..."], "gaps": ["..."],
   "l2_focus": ["<area the L2 interviewer should probe>"]
 }}"""
 
 
-def eval_user(jd: dict, weights: dict, analysis: dict | None, qa: list[dict]) -> str:
+def eval_user(jd: dict, weights: dict, qa: list[dict]) -> str:
+    # The CV brief is deliberately left out: the report must reflect interview performance only.
     areas = [f"- {a} (weight {w}): {SKILL_AREAS.get(a, '')}" for a, w in weights.items() if float(w or 0) > 0]
     lines = []
     for i, q in enumerate(qa, 1):
@@ -129,8 +129,7 @@ def eval_user(jd: dict, weights: dict, analysis: dict | None, qa: list[dict]) ->
             f"Per-answer score: {q.get('score') or '-'}"
         )
     return (
-        f"{_jd_block(jd)}\nPASS THRESHOLD (weighted score): {jd['pass_threshold']}\n\n"
+        f"{_jd_block(jd)}\n\n"
         f"SKILL AREAS TO SCORE:\n" + "\n".join(areas) + "\n\n"
-        f"PRE-INTERVIEW BRIEF:\n{json.dumps(analysis, default=str)[:4000] if analysis else '(none)'}\n\n"
         f"TRANSCRIPT BY QUESTION:\n" + "\n\n".join(lines)[:40000]
     )

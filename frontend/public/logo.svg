@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="L1 Interview">
+  <defs>
+    <linearGradient id="l1-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#6366f1"/>
+      <stop offset="1" stop-color="#7c3aed"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="15" fill="url(#l1-bg)"/>
+  <!-- speech bubble: the interview -->
+  <path d="M20 20H38A8 8 0 0 1 46 28V36A8 8 0 0 1 38 44H26L18 51L19 44H20A8 8 0 0 1 12 36V28A8 8 0 0 1 20 20Z" fill="#fff"/>
+  <!-- check: the decision -->
+  <path d="M20.5 32.5L26.5 38L37.5 26.5" fill="none" stroke="#4f46e5" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- sparkle: AI assistance -->
+  <path d="M51 6.5L52.8 11.2L57.5 13L52.8 14.8L51 19.5L49.2 14.8L44.5 13L49.2 11.2Z" fill="#fff"/>
+  <circle cx="56.5" cy="22.5" r="1.8" fill="#fff" opacity=".75"/>
+</svg>
