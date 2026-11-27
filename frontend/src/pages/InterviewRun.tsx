@@ -36,7 +36,7 @@ export default function InterviewRun() {
   if (!data) return <div className="p-10">{error ? <ErrorBox error={error} /> : <Spinner label="Loading…" />}</div>;
   if (ended || ["completed", "decided"].includes(data.interview.status)) {
     return (
-      <div className="min-h-screen grid place-items-center bg-navy px-4 text-center">
+      <div className="min-h-screen grid place-items-center bg-gradient-to-br from-indigo-950 via-indigo-900 to-violet-900 px-4 text-center">
         <div className="space-y-6">
           <p className="text-2xl md:text-3xl font-semibold text-white italic">“{CLOSING}”</p>
           <Link to={`/interviews/${id}`} className="btn-secondary">Open the L1 report</Link>
@@ -94,7 +94,7 @@ function PreStart({ data, onStarted }: { data: any; onStarted: () => void }) {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 py-10 px-4">
+    <div className="min-h-screen bg-canvas py-10 px-4">
       <div className="card max-w-xl mx-auto space-y-5">
         <Link to={`/interviews/${iv.id}`} className="text-sm text-accent">← Back</Link>
         <h1 className="text-2xl font-semibold">Start interview: {data.candidate.name}</h1>
@@ -188,8 +188,8 @@ function Runner({ data, onEnded }: { data: any; onEnded: () => void }) {
   const sectionRemaining = sectionEnds[q?.section ?? "intro"] - elapsed;
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <header className="bg-navy text-white">
+    <div className="min-h-screen bg-canvas">
+      <header className="bg-gradient-to-r from-indigo-950 to-violet-950 text-white">
         <div className="mx-auto max-w-6xl px-4 py-3 flex flex-wrap items-center gap-4">
           <div className="font-semibold">{data.candidate.name} · {data.jd.title}</div>
           <div className="text-sm text-slate-300">{answered}/{questions.length} answered</div>
@@ -205,7 +205,7 @@ function Runner({ data, onEnded }: { data: any; onEnded: () => void }) {
             const first = questions.findIndex((x) => x.section === s);
             return (
               <button key={s} disabled={first < 0} onClick={() => setIdx(first)}
-                className={`rounded px-2 py-1 ${q?.section === s ? "bg-white text-navy" : "bg-white/10 text-slate-200"}`}>
+                className={`rounded px-2 py-1 ${q?.section === s ? "bg-white text-indigo-900 font-medium" : "bg-white/10 text-indigo-100 hover:bg-white/20"}`}>
                 {SECTION_LABEL[s]}
               </button>
             );
@@ -235,7 +235,7 @@ function Runner({ data, onEnded }: { data: any; onEnded: () => void }) {
         <aside className="card p-3 space-y-1 h-fit max-h-[75vh] overflow-y-auto">
           {questions.map((x, i) => (
             <button key={x.id} onClick={() => setIdx(i)}
-              className={`w-full text-left text-xs rounded px-2 py-1.5 flex gap-2 ${i === idx ? "bg-blue-50 ring-1 ring-accent" : "hover:bg-slate-50"}`}>
+              className={`w-full text-left text-xs rounded px-2 py-1.5 flex gap-2 ${i === idx ? "bg-indigo-50 ring-1 ring-accent text-indigo-900" : "hover:bg-slate-50"}`}>
               <span className="w-4 shrink-0">{x.transcript ? "✓" : i + 1}</span>
               <span className="line-clamp-2">{x.text}</span>
             </button>

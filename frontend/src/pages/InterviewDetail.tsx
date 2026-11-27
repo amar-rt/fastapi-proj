@@ -43,7 +43,7 @@ export default function InterviewDetail() {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <Link to="/" className="text-sm text-accent">← Candidates</Link>
-          <h1 className="text-2xl font-semibold">{candidate.name}</h1>
+          <h1 className="text-2xl font-semibold text-slate-900">{candidate.name}</h1>
           <div className="text-sm text-slate-600">{jd.title} · {candidate.email} · <Badge value={iv.status} /></div>
         </div>
         <div className="flex gap-2 items-center">
@@ -70,7 +70,7 @@ export default function InterviewDetail() {
         {!analysis ? <p className="text-sm text-slate-500">Not analysed yet.</p> : (
           <div className="grid lg:grid-cols-3 gap-5">
             <div className="space-y-2">
-              <div className="text-4xl font-bold">{analysis.match_percent}%</div>
+              <div className="text-4xl font-bold text-accent">{analysis.match_percent}%</div>
               <div className="text-sm text-slate-500">overall JD match</div>
               <p className="text-sm">{analysis.summary}</p>
             </div>
@@ -176,7 +176,7 @@ function AssignBox({ interviewId, current, onDone }: { interviewId: string; curr
 function QuestionForm({ initial, onSave, onCancel }: { initial: Partial<Question>; onSave: (q: Partial<Question>) => void; onCancel: () => void }) {
   const [q, setQ] = useState<Partial<Question>>({ follow_ups: [], ...initial });
   return (
-    <div className="space-y-2 rounded-lg border border-accent/40 bg-blue-50/40 p-3">
+    <div className="space-y-2 rounded-lg border border-indigo-200 bg-indigo-50/50 p-3">
       <textarea className="input" placeholder="Question" value={q.text ?? ""} onChange={(e) => setQ({ ...q, text: e.target.value })} />
       <div className="grid sm:grid-cols-2 gap-2">
         <input className="input" placeholder="Skill area" value={q.skill ?? ""} onChange={(e) => setQ({ ...q, skill: e.target.value })} />
@@ -207,7 +207,7 @@ function QuestionCard({ q, editable, onChange, onError, onMove }: {
         .then(() => { setEditing(false); onChange(); }).catch((e) => onError(e.message))} />;
   }
   return (
-    <div className="rounded-lg border border-slate-200 p-3 space-y-1">
+    <div className="rounded-xl border border-slate-200 p-4 space-y-1.5 hover:border-indigo-200 transition">
       <div className="flex gap-3 justify-between">
         <div className="font-medium">{q.text}</div>
         {editable && (
@@ -263,7 +263,7 @@ function Report({ ev, threshold }: { ev: any; threshold: number }) {
                 <PolarGrid />
                 <PolarAngleAxis dataKey="skill" tick={{ fontSize: 11 }} />
                 <PolarRadiusAxis domain={[0, 5]} tickCount={6} />
-                <Radar dataKey="score" stroke="#2f6fed" fill="#2f6fed" fillOpacity={0.35} />
+                <Radar dataKey="score" stroke="#4f46e5" fill="#6366f1" fillOpacity={0.35} />
               </RadarChart>
             </ResponsiveContainer>
           </div>

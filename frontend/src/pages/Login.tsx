@@ -35,10 +35,11 @@ export default function Login() {
     setForm({ ...form, [k]: e.target.value });
 
   return (
-    <div className="min-h-screen grid place-items-center bg-navy px-4">
-      <form onSubmit={submit} className="card w-full max-w-sm space-y-4">
+    <div className="min-h-screen grid place-items-center bg-gradient-to-br from-indigo-950 via-indigo-900 to-violet-900 px-4">
+      <form onSubmit={submit} className="card w-full max-w-sm space-y-4 p-7 shadow-2xl shadow-indigo-950/40">
         <div>
-          <h1 className="text-xl font-semibold">AI-Assisted L1 Interview</h1>
+          <span className="mb-3 grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-sm font-bold text-white">L1</span>
+          <h1 className="text-xl font-semibold text-slate-900">AI-Assisted L1 Interview</h1>
           <p className="text-sm text-slate-500">
             {needsSetup ? "First run: create the Super User account." : "Sign in to continue."}
           </p>
